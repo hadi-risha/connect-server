@@ -45,7 +45,7 @@ const config: Config = {
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
   adminEmail: process.env.ADMIN_EMAIL || '',
   adminPass: process.env.ADMIN_PASS || '',
-  frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
+  frontendUrl: process.env.FRONTEND_URL || 'https://connect-client-delta.vercel.app ',
   jwtSecret: process.env.JWT_SECRET || '',
   refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET || '',
   refreshTokenExpiry: '7d',
