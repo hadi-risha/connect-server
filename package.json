@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc",
     "production": "node ./dist/index.js",
-    "start": "nodemon"
+    "start": "node --require dotenv/config dist/index.js"
   },
   "keywords": [],
   "author": "",
