@@ -88,15 +88,15 @@ app.get('/', (req, res) => {
   res.status(HttpStatus.OK).json({ message: "hello from home", text: "hlo world" });
 });
 
-// const server = app.listen(
-//     config.port, () => {
-//     // console.log(`Server running at: http://${config.host}:${config.port}`);
-//     console.log(`Server running at: http://localhost:${config.port}`);
-// });
-
-const server = app.listen(config.port, '0.0.0.0', () => {
+const server = app.listen(
+    config.port, () => {
+    // console.log(`Server running at: http://${config.host}:${config.port}`);
     console.log(`Server running at: http://localhost:${config.port}`);
 });
+
+// const server = app.listen(config.port, '0.0.0.0', () => {
+//     console.log(`Server running at: http://localhost:${config.port}`);
+// });
 
 const io = require("socket.io")(server, {
   pingTimeout: 60000,
