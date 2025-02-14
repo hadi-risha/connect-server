@@ -23,53 +23,22 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BookingModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const bookingSchema = new mongoose_1.default.Schema({
-    studentId: {
-        type: mongoose_1.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
+// Define the schema for user chats with AI rating
+const aiRatingSchema = new mongoose_1.default.Schema({
+    userId: {
+        type: mongoose_1.Schema.Types.ObjectId, // Reference to User model
+        ref: 'User', // Assuming there is a User model
+        required: true, // userId is mandatory
     },
-    sessionId: {
-        type: mongoose_1.Schema.Types.ObjectId,
-        ref: "Session",
-        required: true,
+    rating: {
+        type: Number, // Rating field (1 to 5 stars or any scale you choose)
+        required: true, // Rating is required
+        min: 1, // Minimum rating (1 star)
+        max: 5, // Maximum rating (5 stars)
     },
-    instructorId: {
-        type: mongoose_1.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-    },
-    date: {
-        type: String,
-        required: true,
-    },
-    timeSlot: {
-        type: String,
-        required: true,
-    },
-    concerns: {
-        type: String,
-        required: false,
-    },
-    status: {
-        type: String,
-        enum: ["booked", "completed", "cancelled"],
-        default: "booked",
-        required: true,
-    },
-    bookedAt: {
-        type: Date,
-        default: Date.now,
-    },
-    stripePaymentCheckoutSessionId: {
-        type: String,
-        required: true,
-    },
-    meetingRoomId: {
-        type: String,
-        required: true
-    }
-}, { timestamps: true });
-exports.BookingModel = mongoose_1.default.model("Booking", bookingSchema);
+}, { timestamps: true } // Automatically manage createdAt and updatedAt fields
+);
+// Create and export the model
+const AiRatingModel = mongoose_1.default.model("AiRating", aiRatingSchema);
+exports.default = AiRatingModel;

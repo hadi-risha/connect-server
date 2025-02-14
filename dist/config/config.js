@@ -7,8 +7,8 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const config = {
     mongoUrl: process.env.MONGO_URL || '',
-    port: Number(process.env.PORT) || 3001,
-    host: process.env.HOST || 'localhost',
+    port: Number(process.env.PORT),
+    // host: process.env.HOST || 'localhost',
     emailUser: process.env.EMAIL_USER || '',
     emailPass: process.env.EMAIL_PASS || '',
     googleClientId: process.env.GOOGLE_CLIENT_ID || '',
@@ -26,5 +26,8 @@ const config = {
     awsSecretKey: process.env.AWS_SECRET_KEY || '',
     stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY || '',
     stripeSecretKey: process.env.STRIPE_SECRET_KEY || '',
+    imageKitEndpoint: process.env.IMAGE_KIT_ENDPOINT || '',
+    imageKitPublicKey: process.env.IMAGE_KIT_PUBLIC_KEY || '',
+    imageKitPrivateKey: process.env.IMAGE_KIT_PRIVATE_KEY || '',
 };
 exports.default = config;

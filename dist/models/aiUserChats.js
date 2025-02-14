@@ -23,70 +23,29 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SessionModel = void 0;
+exports.AiUserChatsModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const sessionSchema = new mongoose_1.default.Schema({
-    title: {
-        type: String,
-        required: true
-    },
-    introduction: {
-        type: String,
-        required: true
-    },
-    duration: {
-        type: String,
-        required: true
-    },
-    fee: {
-        type: Number,
-        required: true
-    },
-    descriptionTitle: {
-        type: String,
-        required: true
-    },
-    description: {
-        type: String,
-        required: true
-    },
-    timeSlots: {
-        type: [String],
-        required: true
-    },
-    coverImage: {
-        type: {
-            key: {
-                type: String,
-                required: true,
-            },
-            url: {
-                type: String,
-                required: true,
-            },
-        },
-        required: true, // make the entire img field required
-    },
-    instructorId: {
+const userChatsSchema = new mongoose_1.default.Schema({
+    userId: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
-    category: {
-        type: String,
-        enum: [
-            "Science",
-            "Technology",
-            //   "Engineering",
-            "Mathematics",
-            "History",
-            "Languages",
-            "Business",
-            "Finance",
-            "Personal Development",
-            "Arts",
-        ],
-        required: false
-    },
+    chats: [
+        {
+            _id: {
+                type: String,
+                required: true,
+            },
+            title: {
+                type: String,
+                required: true,
+            },
+            createdAt: {
+                type: Date,
+                default: Date.now(),
+            },
+        },
+    ],
 }, { timestamps: true });
-exports.SessionModel = mongoose_1.default.model("Session", sessionSchema);
+exports.AiUserChatsModel = mongoose_1.default.model('AiUserChats', userChatsSchema);

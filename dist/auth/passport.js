@@ -13,18 +13,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const passport_1 = __importDefault(require("passport"));
-const config_js_1 = __importDefault(require("../config/config.js"));
-const userService_js_1 = require("../services/userService.js");
+const config_1 = __importDefault(require("../config/config"));
+const userRepoService_1 = require("../services/userRepoService");
 const passport_google_oauth2_1 = require("passport-google-oauth2");
-const userService = new userService_js_1.UserService();
+const userService = new userRepoService_1.UserService();
 passport_1.default.use(new passport_google_oauth2_1.Strategy({
-    clientID: config_js_1.default.googleClientId || '',
-    clientSecret: config_js_1.default.googleClientSecret || '',
+    clientID: config_1.default.googleClientId || '',
+    clientSecret: config_1.default.googleClientSecret || '',
     callbackURL: '/api/auth/google/callback',
     scope: ["profile", "email"]
 }, (accessToken, refreshToken, profile, done) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d;
-    console.log("profile", profile);
     try {
         const googleId = profile.id;
         const firstName = ((_a = profile.name) === null || _a === void 0 ? void 0 : _a.givenName) || "";
@@ -35,13 +34,13 @@ passport_1.default.use(new passport_google_oauth2_1.Strategy({
         }
         // let user = await userRepository.findUserByGoogleid(profile.id);
         let user = yield userService.findUserByEmail(email);
-        console.log("user already in db, check if verified or not", user);
+        // user already in db, check if verified or not
         if ((user === null || user === void 0 ? void 0 : user.isVerified) === false) {
             user = yield userService.updateUserVerification(email);
-            console.log("user: ", user);
+            console.log("user found");
         }
         if (!user) {
-            console.log("the user not in db, create new user");
+            // the user not in db, create new user
             user = {
                 googleId: profile.id,
                 firstName,
@@ -50,41 +49,27 @@ passport_1.default.use(new passport_google_oauth2_1.Strategy({
                 role: 'student',
                 isVerified: true
             };
-            // user = {
-            //   googleId: profile.id,
-            //   firstName: firstName , // provide default values if undefined
-            //   lastName: lastName ,
-            //   email,
-            //   role: 'student',
-            //   isVerified: true,
-            //   resetPasswordToken: null,
-            //   resetPasswordExpiry: null,
-            // } as IUser;
             let response = yield userService.createUser(user);
-            console.log("user created in passport, response", response);
+            console.log("user created in passport");
             user = response;
         }
-        console.log("user data after created or found in db==================================", user);
         return done(null, user);
     }
     catch (error) {
-        console.log("error in passport 1", error);
+        console.log("error in passport :- ", error);
         done(error, null);
     }
 })));
 passport_1.default.serializeUser((user, done) => {
-    console.log("serializeUser, user   1...", user);
-    // done(null, user.id);  
     done(null, user._id);
 });
 passport_1.default.deserializeUser((id, done) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield userService.findUserById(id);
-        console.log("deserializeUser , user   2...", user);
         done(null, user);
     }
     catch (error) {
-        console.log("error in passport 3...", error);
+        console.log("error in passport :- ", error);
         done(error, null);
     }
 }));

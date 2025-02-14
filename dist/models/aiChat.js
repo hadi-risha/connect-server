@@ -23,70 +23,42 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SessionModel = void 0;
+exports.AiChatModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const sessionSchema = new mongoose_1.default.Schema({
-    title: {
-        type: String,
-        required: true
-    },
-    introduction: {
-        type: String,
-        required: true
-    },
-    duration: {
-        type: String,
-        required: true
-    },
-    fee: {
-        type: Number,
-        required: true
-    },
-    descriptionTitle: {
-        type: String,
-        required: true
-    },
-    description: {
-        type: String,
-        required: true
-    },
-    timeSlots: {
-        type: [String],
-        required: true
-    },
-    coverImage: {
-        type: {
-            key: {
-                type: String,
-                required: true,
-            },
-            url: {
-                type: String,
-                required: true,
-            },
-        },
-        required: true, // make the entire img field required
-    },
-    instructorId: {
+const ChatSchema = new mongoose_1.Schema({
+    userId: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
-    category: {
-        type: String,
-        enum: [
-            "Science",
-            "Technology",
-            //   "Engineering",
-            "Mathematics",
-            "History",
-            "Languages",
-            "Business",
-            "Finance",
-            "Personal Development",
-            "Arts",
-        ],
-        required: false
-    },
+    history: [
+        {
+            role: {
+                type: String,
+                enum: ["user", "model"],
+                required: true,
+            },
+            parts: [
+                {
+                    text: {
+                        type: String,
+                        required: true,
+                    },
+                },
+            ],
+            // img: {
+            //     type: { 
+            //         url: { 
+            //             type: String 
+            //         } 
+            //     },
+            //     required: false,
+            // },
+            img: {
+                type: String,
+                required: false,
+            },
+        },
+    ],
 }, { timestamps: true });
-exports.SessionModel = mongoose_1.default.model("Session", sessionSchema);
+exports.AiChatModel = mongoose_1.default.model('AiChat', ChatSchema);

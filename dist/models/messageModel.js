@@ -23,53 +23,39 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BookingModel = void 0;
+exports.MessageModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const bookingSchema = new mongoose_1.default.Schema({
-    studentId: {
+const MessageSchema = new mongoose_1.Schema({
+    sender: {
         type: mongoose_1.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
+        ref: 'User',
+        required: true
     },
-    sessionId: {
-        type: mongoose_1.Schema.Types.ObjectId,
-        ref: "Session",
-        required: true,
-    },
-    instructorId: {
-        type: mongoose_1.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-    },
-    date: {
-        type: String,
-        required: true,
-    },
-    timeSlot: {
-        type: String,
-        required: true,
-    },
-    concerns: {
-        type: String,
-        required: false,
-    },
-    status: {
-        type: String,
-        enum: ["booked", "completed", "cancelled"],
-        default: "booked",
-        required: true,
-    },
-    bookedAt: {
-        type: Date,
-        default: Date.now,
-    },
-    stripePaymentCheckoutSessionId: {
-        type: String,
-        required: true,
-    },
-    meetingRoomId: {
+    readBy: [
+        {
+            type: mongoose_1.default.Schema.Types.ObjectId,
+            ref: "User",
+            required: true
+        }
+    ],
+    content: {
         type: String,
         required: true
-    }
+    },
+    chat: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: "Chat",
+        trim: true,
+    },
+    reactions: [
+        {
+            userId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User' },
+            type: { type: String }, // e.g., 'like', 'love', etc.
+        },
+    ],
+    seen: {
+        type: Boolean,
+        default: false
+    },
 }, { timestamps: true });
-exports.BookingModel = mongoose_1.default.model("Booking", bookingSchema);
+exports.MessageModel = mongoose_1.default.model('Message', MessageSchema);

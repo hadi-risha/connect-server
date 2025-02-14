@@ -8,18 +8,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserRepository = void 0;
 const userModel_1 = require("../models/userModel");
 const sessionModel_1 = require("../models/sessionModel");
 const bookingModel_1 = require("../models/bookingModel");
+const mongoose_1 = __importDefault(require("mongoose"));
+const ratingModel_1 = require("../models/ratingModel");
+const notificationModel_1 = require("../models/notificationModel");
+const postModel_1 = require("../models/postModel");
 class UserRepository {
+    // ***
     createUser(userData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log("in create user repository");
                 const newUser = new userModel_1.UserModel(userData);
-                console.log("newUser:- ", newUser);
                 return yield newUser.save();
             }
             catch (error) {
@@ -27,6 +33,7 @@ class UserRepository {
             }
         });
     }
+    // ***
     findUserByEmail(email) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -37,16 +44,7 @@ class UserRepository {
             }
         });
     }
-    findUserByGoogleId(googleId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield userModel_1.UserModel.findOne({ googleId });
-            }
-            catch (error) {
-                throw new Error(`Error finding user by Google ID: ${error instanceof Error ? error.message : 'Unknown error'}`);
-            }
-        });
-    }
+    // ***
     findUserById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -57,6 +55,7 @@ class UserRepository {
             }
         });
     }
+    // ***
     updateUserVerification(email) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -67,6 +66,7 @@ class UserRepository {
             }
         });
     }
+    // ***
     findUserByResetToken(token) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -88,6 +88,13 @@ class UserRepository {
             }
         });
     }
+    // async findUserByGoogleId(googleId: string): Promise<IUser | null> {
+    //     try {
+    //         return await UserModel.findOne({ googleId });
+    //     } catch (error) {
+    //         throw new Error(`Error finding user by Google ID: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    //     }
+    // }
     updateUserDetails(profileData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -123,7 +130,7 @@ class UserRepository {
                 return yield sessionModel_1.SessionModel.findById(id)
                     .populate({
                     path: 'instructorId',
-                    select: '_id firstName lastName image.url', // Only fetch the required fields
+                    select: '_id firstName lastName image.url',
                 });
             }
             catch (error) {
@@ -173,7 +180,7 @@ class UserRepository {
                     .sort({ createdAt: -1 })
                     .populate({
                     path: 'instructorId',
-                    select: 'firstName lastName', // Only fetch the required fields
+                    select: 'firstName lastName',
                 });
             }
             catch (error) {
@@ -200,15 +207,15 @@ class UserRepository {
     bookedSessions(studentId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield bookingModel_1.BookingModel.find({ studentId }) // Ensure `studentId` is passed as an object
-                    .sort({ createdAt: -1 }) // Sort bookings by creation date, descending
+                return yield bookingModel_1.BookingModel.find({ studentId })
+                    .sort({ createdAt: -1 })
                     .populate({
-                    path: 'instructorId', // Populate instructor details
-                    select: 'firstName lastName email', // Fetch only necessary fields
+                    path: 'instructorId',
+                    select: 'firstName lastName email',
                 })
                     .populate({
-                    path: 'sessionId', // Populate session details
-                    select: '_id title duration fee descriptionTitle coverImage.url', // Fetch required fields
+                    path: 'sessionId',
+                    select: '_id title duration fee descriptionTitle coverImage.url',
                 });
             }
             catch (error) {
@@ -219,19 +226,19 @@ class UserRepository {
     instructorBookedSessions(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield bookingModel_1.BookingModel.find({ instructorId: id }) // Ensure `studentId` is passed as an object
-                    .sort({ createdAt: -1 }) // Sort bookings by creation date, descending
+                return yield bookingModel_1.BookingModel.find({ instructorId: id })
+                    .sort({ createdAt: -1 })
                     .populate({
-                    path: 'studentId', // Populate instructor details
-                    select: '_id firstName lastName email', // Fetch only necessary fields
+                    path: 'studentId',
+                    select: '_id firstName lastName email image.url',
                 })
                     .populate({
-                    path: 'instructorId', // Populate instructor details
-                    select: 'firstName lastName email', // Fetch only necessary fields
+                    path: 'instructorId',
+                    select: 'firstName lastName email',
                 })
                     .populate({
-                    path: 'sessionId', // Populate session details
-                    select: '_id title duration fee descriptionTitle', // Fetch required fields
+                    path: 'sessionId',
+                    select: '_id title duration fee descriptionTitle coverImage.url',
                 });
             }
             catch (error) {
@@ -271,6 +278,279 @@ class UserRepository {
             }
             catch (error) {
                 throw new Error(`Error finding booking by ID: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            }
+        });
+    }
+    findBookingByIdS(studentId, sessionId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield bookingModel_1.BookingModel.findOne({ studentId, sessionId });
+            }
+            catch (error) {
+                throw new Error(`Error finding booking by IDs: ${error instanceof Error ? error.message : "Unknown error"}`);
+            }
+        });
+    }
+    searchSessions(query, userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const searchRegex = new RegExp(query, 'i'); // Case-insensitive regex for partial matches
+                const sessions = yield sessionModel_1.SessionModel.aggregate([
+                    {
+                        $match: {
+                            $or: [
+                                { title: searchRegex },
+                                { description: searchRegex },
+                                { category: searchRegex }
+                            ]
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: 'bookings', // Name of the bookings collection
+                            localField: '_id',
+                            foreignField: 'sessionId',
+                            as: 'bookings'
+                        }
+                    },
+                    {
+                        $addFields: {
+                            bookingStatus: {
+                                $arrayElemAt: [
+                                    {
+                                        $filter: {
+                                            input: "$bookings",
+                                            as: "booking",
+                                            cond: { $eq: ["$$booking.studentId", new mongoose_1.default.Types.ObjectId(userId)] }
+                                        }
+                                    },
+                                    0
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        $project: {
+                            bookings: 0, // Exclude the entire bookings array
+                        }
+                    },
+                    { $sort: { createdAt: -1 } } // Sort by creation date
+                ]);
+                return sessions;
+            }
+            catch (error) {
+                throw new Error(`Failed to perform search: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            }
+        });
+    }
+    instructorSearchSessions(query, instructorId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const searchRegex = new RegExp(query, 'i'); // Case-insensitive regex for partial matches
+                // Convert instructorId to mongoose.Types.ObjectId if it's not already in that format
+                const instructorObjectId = new mongoose_1.default.Types.ObjectId(instructorId);
+                const sessions = yield sessionModel_1.SessionModel.aggregate([
+                    {
+                        $match: {
+                            instructorId: instructorObjectId, // Filter sessions by instructorId
+                            $or: [
+                                { title: searchRegex },
+                                { description: searchRegex },
+                                { category: searchRegex }
+                            ]
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: 'bookings', // Name of the bookings collection
+                            localField: '_id',
+                            foreignField: 'sessionId',
+                            as: 'bookings'
+                        }
+                    },
+                    {
+                        $addFields: {
+                            bookingStatus: {
+                                $arrayElemAt: [
+                                    {
+                                        $filter: {
+                                            input: "$bookings",
+                                            as: "booking",
+                                            cond: { $eq: ["$$booking.studentId", instructorObjectId] } // Filter bookings by studentId (use userId here if necessary)
+                                        }
+                                    },
+                                    0
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        $project: {
+                            bookings: 0, // Exclude the entire bookings array
+                        }
+                    },
+                    { $sort: { createdAt: -1 } } // Sort by creation date
+                ]);
+                return sessions;
+            }
+            catch (error) {
+                throw new Error(`Failed to perform search: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            }
+        });
+    }
+    sessionHistory(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield bookingModel_1.BookingModel.find({
+                    userId,
+                    status: { $in: ['completed', 'cancelled'] }
+                })
+                    .sort({ createdAt: -1 })
+                    .populate({
+                    path: 'instructorId',
+                    select: 'firstName lastName email',
+                })
+                    .populate({
+                    path: 'sessionId',
+                    select: '_id title duration fee descriptionTitle coverImage.url',
+                });
+            }
+            catch (error) {
+                throw new Error(`Failed to fetch bookings: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            }
+        });
+    }
+    instructorSessionHistory(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield bookingModel_1.BookingModel.find({
+                    instructorId: userId,
+                    status: { $in: ['completed', 'cancelled'] }
+                })
+                    .sort({ createdAt: -1 })
+                    .populate({
+                    path: 'studentId',
+                    select: 'firstName lastName email',
+                })
+                    .populate({
+                    path: 'sessionId',
+                    select: '_id title duration fee descriptionTitle coverImage.url',
+                });
+            }
+            catch (error) {
+                throw new Error(`Failed to fetch bookings: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            }
+        });
+    }
+    pendingSessions(studentId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield bookingModel_1.BookingModel.find({
+                    studentId,
+                    status: { $in: ['booked'] }
+                })
+                    .sort({ createdAt: -1 })
+                    .populate({
+                    path: 'instructorId',
+                    select: 'firstName lastName email',
+                })
+                    .populate({
+                    path: 'sessionId',
+                    select: '_id title duration fee descriptionTitle coverImage.url',
+                });
+            }
+            catch (error) {
+                throw new Error(`Failed to fetch bookings: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            }
+        });
+    }
+    rateInstructor(ratingData) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = new ratingModel_1.RatingModel({
+                    ratedBy: ratingData.ratedBy,
+                    ratedUser: ratingData.ratedUser,
+                    rating: ratingData.rating,
+                    feedback: ratingData.feedback,
+                    sessionId: ratingData.sessionId
+                });
+                yield response.save();
+                return response;
+            }
+            catch (error) {
+                throw new Error(`Error creating rating: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            }
+        });
+    }
+    findBookingAndChangeStatus(id, status) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield bookingModel_1.BookingModel.findOneAndUpdate({ _id: id }, { status: status }, { new: true });
+            }
+            catch (error) {
+                throw new Error(`Error updating session status: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            }
+        });
+    }
+    fetchNotifications() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield notificationModel_1.NotificationModel.find({ isShown: true }).sort({ createdAt: -1 });
+            }
+            catch (error) {
+                throw new Error(`Failed to fetch notifications: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            }
+        });
+    }
+    createPost(postData) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                console.log("in create post repository");
+                const newPost = new postModel_1.PostModel(postData);
+                console.log("newPost:- ", newPost);
+                return yield newPost.save();
+            }
+            catch (error) {
+                throw new Error(`Error creating post: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            }
+        });
+    }
+    fetchPosts() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield postModel_1.PostModel.find()
+                    .sort({ createdAt: -1 })
+                    .populate({
+                    path: 'instructorId',
+                    select: '_id firstName lastName role country image.url',
+                });
+            }
+            catch (error) {
+                throw new Error(`Failed to fetch posts: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            }
+        });
+    }
+    findPostById(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield postModel_1.PostModel.findById(id)
+                    .populate({
+                    path: 'instructorId',
+                    select: '_id firstName lastName role country image.url',
+                });
+            }
+            catch (error) {
+                throw new Error(`Error finding post by ID: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            }
+        });
+    }
+    updatePostById(id, newLikes) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield postModel_1.PostModel.findByIdAndUpdate(id, { likes: newLikes }, { new: true });
+            }
+            catch (error) {
+                throw new Error(`Error finding post by ID: ${error instanceof Error ? error.message : 'Unknown error'}`);
             }
         });
     }

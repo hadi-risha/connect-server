@@ -82,7 +82,6 @@ const userSchema = new mongoose_1.default.Schema({
         type: {
             key: {
                 type: String,
-                // required: true,
                 required: false,
             },
             url: {
@@ -99,6 +98,14 @@ const userSchema = new mongoose_1.default.Schema({
     isRoleChanged: {
         type: Boolean,
         default: false
+    },
+    lastActive: {
+        type: Date,
+        default: Date.now
+    },
+    wishlistSessionIds: {
+        type: [String], // This will be an array of strings
+        default: [], // Initialize as an empty array by default
     },
 }, { timestamps: true });
 exports.UserModel = mongoose_1.default.model("User", userSchema);

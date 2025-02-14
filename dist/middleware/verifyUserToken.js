@@ -16,19 +16,14 @@ exports.verifyToken = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const httpStatusCodes_1 = require("../utils/httpStatusCodes");
 const config_1 = __importDefault(require("../config/config"));
-const userService_1 = require("../services/userService");
-const userService = new userService_1.UserService();
+const userRepoService_1 = require("../services/userRepoService");
+const userService = new userRepoService_1.UserService();
 const verifyToken = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("user details in verify token", req.userData);
     try {
-        console.log("in verify token part");
         let token = req.header("Authorization");
-        console.log("token in verify user", token);
         if (!token) {
             return res.status(httpStatusCodes_1.HttpStatus.UNAUTHORIZED).json({ message: 'access denied, no token provided' });
         }
-        // const { id } = req.userData as IUserData;
-        // console.log("id from verify user tokennnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn", id);
         if (token.startsWith("Bearer ")) {
             token = token.slice(7, token.length).trimLeft();
         }
@@ -39,8 +34,6 @@ const verifyToken = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         //verify the token using the secret
         const verified = jsonwebtoken_1.default.verify(token, secret);
         req.userData = verified;
-        console.log("in auth.ts     req.userData.......", req.userData);
-        console.log("user info from verifytoken", req.userData);
         next();
     }
     catch (err) {

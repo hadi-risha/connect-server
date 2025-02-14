@@ -30,7 +30,6 @@ router.get('/google/callback', passport_1.default.authenticate('google', {
 }), (req, res) => {
     const user = req.user;
     const { role, isBlocked, isRoleChanged } = user;
-    console.log("role", role);
     const token = jsonwebtoken_1.default.sign({ id: user._id, role: user.role, isBlocked: user.isBlocked, isRoleChanged: user.isRoleChanged, userDetails: user }, config_1.default.jwtSecret);
     console.log("redirect to ->", `${config_1.default.frontendUrl}/${role}/home`);
     const homePageUrl = `/${user.role}/home`;
@@ -47,7 +46,6 @@ router.use((req, res, next) => {
 router.get('/success', (req, res) => {
     console.log("req", req.user);
     if (req.user) {
-        console.log("Google Auth successful");
         res.status(httpStatusCodes_1.HttpStatus.OK).json({ message: 'Google Auth successful', user: req.user });
     }
     else {
